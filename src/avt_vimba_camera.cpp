@@ -970,45 +970,41 @@ void AvtVimbaCamera::updateImageModeConfig(Config& config) {
 void AvtVimbaCamera::updateROIConfig(Config& config) {
   bool changed = false;
 
-  // Region of interest configuration
-  // Make sure ROI fits in image
+  ////Region of interest configuration
+  //// Make sure ROI fits in image
+  //int max_width, max_height;
+  //getFeatureValue("WidthMax",max_width);
+  //getFeatureValue("HeightMax",max_height);
+  //config.width        = std::min(config.width,  (int)max_width);
+  //config.height       = std::min(config.height, (int)max_height);
+  //config.roi_offset_x = std::min(config.roi_offset_x, config.width - 1);
+  //config.roi_offset_y = std::min(config.roi_offset_y, config.height - 1);
+  //config.roi_width    = std::min(config.roi_width,  config.width  - config.roi_offset_x);
+  //config.roi_height   = std::min(config.roi_height, config.height - config.roi_offset_y);
+  //// If width or height is 0, set it as large as possible
+  //int width  = config.roi_width  ? config.roi_width  : max_width  - config.roi_offset_x;
+  //int height = config.roi_height ? config.roi_height : max_height - config.roi_offset_y;
+  //// Adjust full-res ROI to binning ROI
+  ///// @todo Replicating logic from polledCallback
+  //int offset_x = config.roi_offset_x / config.binning_x;
+  //int offset_y = config.roi_offset_y / config.binning_y;
+  //unsigned int right_x  = (config.roi_offset_x + width  + config.binning_x - 1) / config.binning_x;
+  //unsigned int bottom_y = (config.roi_offset_y + height + config.binning_y - 1) / config.binning_y;
+  //// Rounding up is bad when at max resolution which is not divisible by the amount of binning
+  //right_x  = std::min(right_x,  (unsigned)(config.width  / config.binning_x));
+  //bottom_y = std::min(bottom_y, (unsigned)(config.height / config.binning_y));
+  //width    = right_x  - offset_x;
+  //height   = bottom_y - offset_y;
+  //config.width  = width;
+  //config.height = height;
 
-  int max_width, max_height;
-  getFeatureValue("WidthMax",max_width);
-  getFeatureValue("HeightMax",max_height);
-
-  config.width        = std::min(config.width,  (int)max_width);
-  config.height       = std::min(config.height, (int)max_height);
-  config.roi_offset_x = std::min(config.roi_offset_x, config.width - 1);
-  config.roi_offset_y = std::min(config.roi_offset_y, config.height - 1);
-  config.roi_width    = std::min(config.roi_width,  config.width  - config.roi_offset_x);
-  config.roi_height   = std::min(config.roi_height, config.height - config.roi_offset_y);
-  // If width or height is 0, set it as large as possible
-  int width  = config.roi_width  ? config.roi_width  : max_width  - config.roi_offset_x;
-  int height = config.roi_height ? config.roi_height : max_height - config.roi_offset_y;
-
-  // Adjust full-res ROI to binning ROI
-  /// @todo Replicating logic from polledCallback
-  int offset_x = config.roi_offset_x / config.binning_x;
-  int offset_y = config.roi_offset_y / config.binning_y;
-  unsigned int right_x  = (config.roi_offset_x + width  + config.binning_x - 1) / config.binning_x;
-  unsigned int bottom_y = (config.roi_offset_y + height + config.binning_y - 1) / config.binning_y;
-  // Rounding up is bad when at max resolution which is not divisible by the amount of binning
-  right_x  = std::min(right_x,  (unsigned)(config.width  / config.binning_x));
-  bottom_y = std::min(bottom_y, (unsigned)(config.height / config.binning_y));
-  width    = right_x  - offset_x;
-  height   = bottom_y - offset_y;
-
-  config.width  = width;
-  config.height = height;
-
-  if (config.roi_offset_x != config_.roi_offset_x || on_init_) {
+  if (config.offset_x != config_.offset_x || on_init_) {
     changed = true;
-    setFeatureValue("OffsetX", static_cast<VmbInt64_t>(config.roi_offset_x));
+    setFeatureValue("OffsetX", static_cast<VmbInt64_t>(config.offset_x));
   }
-  if (config.roi_offset_y != config_.roi_offset_y || on_init_) {
+  if (config.offset_y != config_.offset_y || on_init_) {
     changed = true;
-    setFeatureValue("OffsetY", static_cast<VmbInt64_t>(config.roi_offset_y));
+    setFeatureValue("OffsetY", static_cast<VmbInt64_t>(config.offset_y));
   }
   if (config.width != config_.width || on_init_) {
     changed = true;
@@ -1021,8 +1017,8 @@ void AvtVimbaCamera::updateROIConfig(Config& config) {
 
   if(changed && show_debug_prints_){
     ROS_INFO_STREAM("New ROI config (" << config.frame_id << ") : "
-      << "\n\tOffsetX : " << config.roi_offset_x << " was " << config_.roi_offset_x
-      << "\n\tOffsetY : " << config.roi_offset_y << " was " << config_.roi_offset_y
+      << "\n\tOffsetX : " << config.offset_x << " was " << config_.offset_x
+      << "\n\tOffsetY : " << config.offset_y << " was " << config_.offset_y
       << "\n\tWidth   : " << config.width        << " was " << config_.width
       << "\n\tHeight  : " << config.height       << " was " << config_.height);
   }
